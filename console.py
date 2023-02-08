@@ -68,12 +68,12 @@ class HBNBCommand(cmd.Cmd):
                         check = True
                         print(value)
                         break
-                if check == False:
+                if not check:
                     print("** no instance found **")
 
     def do_all(self, arg):
         """
-        Prints all string representation of all instances based or not on the class name
+        Prints all string representation of all instances based/not on the class name
         """
         line = arg.split()
         if len(line) == 0:
@@ -86,6 +86,29 @@ class HBNBCommand(cmd.Cmd):
                 cls_name = key.split(".")
                 if cls_name[0] == line[0]:
                     print(value)
+
+    def do_destroy(self, arg):
+        """
+        Deletes an instance based on the class name and id (save the change into the JSON file)
+        """
+        line = arg.split()
+        if len(line) == 0:
+            print("** class name missing **")
+        else:
+            if not line[0] in self.__classes:
+                print("** class doesn't exist **")
+            elif line[1] == "":
+                print("** instance id missing **")
+            else:
+                search_key = line[0] + "." + line[1]
+                check = False
+                for key, value in storage.all().items():
+                    if search_key == key:
+                        check = True
+                        del storage.all()[key]
+                        break
+                if not check:
+                    print("** no instance found **")
 
 
 if __name__ == '__main__':
