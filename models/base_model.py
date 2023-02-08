@@ -1,8 +1,8 @@
 #!/usr/bin/python3
 """BaseModel Module"""
+import models
 from datetime import datetime
 import uuid
-from . import storage
 
 
 class BaseModel:
@@ -12,18 +12,18 @@ class BaseModel:
 
     def __init__(self, *args, **kwargs):
         """Initializes the class"""
+        tformat = "%Y-%m-%dT%H:%M:%S.%f"
         if kwargs:
-            self.id = kwargs["id"]
-            self.created_at = datetime.strptime(kwargs["created_at"],
-                                       "%Y-%m-%dT%H:%M:%S.%f")
-            self.updated_at = datetime.strptime(kwargs["updated_at"],
-                                              "%Y-%m-%dT%H:%M:%S.%f")
-
+            for key, value in kwargs.items():
+                if key == "created_at" or key == "updated_at":
+                    setattr(self, key, datetime.strptime(value, tformat))
+                elif key != "__class__":
+                    setattr(self, key, value)
         else:
             self.id = str(uuid.uuid4())
             self.created_at = datetime.now()
             self.updated_at = datetime.now()
-            storage.new(self)
+            models.storage.new(self)
 
     def __str__(self):
         """
@@ -48,4 +48,4 @@ class BaseModel:
         Updates public instance attribute updated_at with current datetime
         """
         self.updated_at = datetime.now()
-        storage.save()
+        models.storage.save()
