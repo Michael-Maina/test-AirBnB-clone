@@ -2,6 +2,7 @@
 """FileStorage Module"""
 import json
 from os import path
+from models.base_model import BaseModel
 
 
 class FileStorage:
@@ -28,8 +29,12 @@ class FileStorage:
         """
         Serializes __objects to the JSON file (path: __file_path)
         """
-        with open(FileStorage.__file_path, "a", encoding="utf-8") as f:
-            f.write(json.dumps(FileStorage.__objects))
+        save_dict = {}
+        for key, value in FileStorage.__objects.items():
+            save_dict[key] = value.to_dict()
+
+        with open(FileStorage.__file_path, "w", encoding="utf-8") as f:
+            f.write(json.dumps(save_dict))
 
     def reload(self):
         """
@@ -40,4 +45,7 @@ class FileStorage:
             pass
         else:
             with open(FileStorage.__file_path, "r", encoding="utf-8") as f:
-                FileStorage.__objects = json.loads(f.read())
+                reload_dict = json.loads(f.read())
+
+                for obj in reload_dict.values():
+                    self.new(eval(obj["__class__"])(**obj))
