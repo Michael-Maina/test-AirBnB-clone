@@ -48,7 +48,7 @@ class HBNBCommand(cmd.Cmd):
                 print("{}".format(new_inst.id))
 
     def help_create(self):
-        """Help output for create command"""
+        """Help output for the create command"""
         print("Creates a new instance of a class, saves it and prints the id")
         print()
 
@@ -62,7 +62,7 @@ class HBNBCommand(cmd.Cmd):
         else:
             if not line[0] in self.__classes:
                 print("** class doesn't exist **")
-            elif line[1] == "":
+            elif len(line) == 1:
                 print("** instance id missing **")
             else:
                 search_key = line[0] + "." + line[1]
@@ -74,6 +74,12 @@ class HBNBCommand(cmd.Cmd):
                         break
                 if not check:
                     print("** no instance found **")
+
+    def help_show(self):
+        """Help output for the show command"""
+        print("Prints string representation of an instance\
+        based on class name and id")
+        print()
 
     def do_all(self, arg):
         """
@@ -92,6 +98,12 @@ class HBNBCommand(cmd.Cmd):
                 if cls_name[0] == line[0]:
                     print(value)
 
+    def help_all(self):
+        """Help output for the all command"""
+        print("Prints all string representation of all instances\
+        based/not on the class name")
+        print()
+
     def do_destroy(self, arg):
         """
         Deletes an instance based on the class name and id
@@ -103,7 +115,7 @@ class HBNBCommand(cmd.Cmd):
         else:
             if not line[0] in self.__classes:
                 print("** class doesn't exist **")
-            elif line[1] == "":
+            elif len(line) != 2:
                 print("** instance id missing **")
             else:
                 search_key = line[0] + "." + line[1]
@@ -115,6 +127,52 @@ class HBNBCommand(cmd.Cmd):
                         break
                 if not check:
                     print("** no instance found **")
+
+    def help_destroy(self):
+        """Help output for the destroy command"""
+        print("Deletes an instance based on the class name and id\
+        (save the change into the JSON file)")
+        print()
+
+    def do_update(self, arg):
+        """
+        Updates an instance based on the class name and id by
+        adding or updating attribute (save the change into the JSON file)
+        """
+        line = arg.split()
+        if len(line) == 0:
+            print("** class name missing **")
+        else:
+            if not line[0] in self.__classes:
+                print("** class doesn't exist **")
+            elif len(line) == 1:
+                print("** instance id missing **")
+            else:
+                check = False
+                for key, value in storage.all().items():
+                    id_no = key.split(".")
+                    if id_no[1] == line[1]:
+                        check = True
+                        if len(line) == 2:
+                            print("** attribute name missing **")
+                        elif len(line) == 3:
+                            print("** value missing **")
+                        else:
+                            if line[3].isalpha():
+                                pass
+                            elif line[3].isdigit():
+                                line[3] = int(line[3])
+                            else:
+                                line[3] = float(line[3])
+                            setattr(value, line[2], line[3])
+                if not check:
+                    print("** no instance found **")
+
+    def help_update(self):
+        """Help output for the update command"""
+        print("Updates an instance based on the class name and id by\
+        adding or updating attribute (save the change into the JSON file)")
+        print()
 
 
 if __name__ == '__main__':
