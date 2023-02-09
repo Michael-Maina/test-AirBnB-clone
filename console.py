@@ -73,7 +73,8 @@ class HBNBCommand(cmd.Cmd):
 
     def do_all(self, arg):
         """
-        Prints all string representation of all instances based/not on the class name
+        Prints all string representation of all instances
+        based/not on the class name
         """
         line = arg.split()
         if len(line) == 0:
@@ -89,7 +90,8 @@ class HBNBCommand(cmd.Cmd):
 
     def do_destroy(self, arg):
         """
-        Deletes an instance based on the class name and id (save the change into the JSON file)
+        Deletes an instance based on the class name and id
+        (save the change into the JSON file)
         """
         line = arg.split()
         if len(line) == 0:
