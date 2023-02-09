@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 """Entry point for the command interpreter """
 import cmd
+import re
 from models.__init__ import storage
 from models.base_model import BaseModel
 from models.user import User
@@ -18,6 +19,28 @@ class HBNBCommand(cmd.Cmd):
 
     __classes = {"BaseModel", "User", "State",
                  "City", "Amenity", "Place", "Review"}
+
+    def default(self, arg):
+        """TBD"""
+        method_dict = {
+            "all": self.do_all,
+            "show": self.do_show,
+            "update": self.do_update,
+            "destroy": self.do_destroy,
+        }
+
+        match = re.search("\.", arg)
+        if match is not None:
+            input_list = [arg[:match.span()[0]], arg[match.span()[1]:]]
+            match = re.search("\((.*?)\)", input_list[1])
+
+            if match is not None:
+                cmd_list = [input_list[1][:match.span()[0]], match.group()[1:-1]]
+                if cmd_list[0] in method_dict.keys():
+                    arguments = input_list[0] + " " + cmd_list[1]
+                    return method_dict[cmd_list[0]](arguments)
+        print("*** Unknown syntax: {}".format(arg))
+        return False
 
     def do_emptyline(self):
         """Executes nothing when no command is passed to the interpreter"""
