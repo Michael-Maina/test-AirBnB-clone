@@ -27,6 +27,7 @@ class HBNBCommand(cmd.Cmd):
             "show": self.do_show,
             "update": self.do_update,
             "destroy": self.do_destroy,
+            "count": self.do_count
         }
 
         match = re.search("\.", arg)
@@ -195,6 +196,27 @@ class HBNBCommand(cmd.Cmd):
         """Help output for the update command"""
         print("Updates an instance based on the class name and id by\
         adding or updating attribute (save the change into the JSON file)")
+        print()
+
+    def do_count(self, arg):
+        """Count number of instances of a class"""
+        count = 0
+        line = arg.split()
+        if len(line) == 0:
+            print("** class name missing **")
+        else:
+            if not line[0] in self.__classes:
+                print("** class doesn't exist **")
+            else:
+                for key in storage.all().keys():
+                    cls_name = key.split(".")
+                    if cls_name[0] == line[0]:
+                        count += 1
+                print(count)
+
+    def help_count(self):
+        """Help output for the update command"""
+        print("Counts the number of instances of a class")
         print()
 
 
