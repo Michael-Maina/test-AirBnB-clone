@@ -32,12 +32,15 @@ class HBNBCommand(cmd.Cmd):
         match = re.search("\.", arg)
         if match is not None:
             input_list = [arg[:match.span()[0]], arg[match.span()[1]:]]
+            input_list[1] = re.sub('[",]+', '', input_list[1])
             match = re.search("\((.*?)\)", input_list[1])
 
             if match is not None:
                 cmd_list = [input_list[1][:match.span()[0]], match.group()[1:-1]]
+                print("Cmd_list: {}".format(cmd_list))
                 if cmd_list[0] in method_dict.keys():
                     arguments = input_list[0] + " " + cmd_list[1]
+                    print("Arguments: {}".format(arguments))
                     return method_dict[cmd_list[0]](arguments)
         print("*** Unknown syntax: {}".format(arg))
         return False
@@ -110,16 +113,19 @@ class HBNBCommand(cmd.Cmd):
         based/not on the class name
         """
         line = arg.split()
+        inst_list = []
         if len(line) == 0:
             for key, value in storage.all().items():
-                print(value)
+                inst_list.append(value.__str__())
+            print(inst_list)
         elif not line[0] in self.__classes:
             print("** class doesn't exist **")
         else:
             for key, value in storage.all().items():
                 cls_name = key.split(".")
                 if cls_name[0] == line[0]:
-                    print(value)
+                    inst_list.append(value.__str__())
+            print(inst_list)
 
     def help_all(self):
         """Help output for the all command"""
