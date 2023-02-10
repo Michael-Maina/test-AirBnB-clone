@@ -41,7 +41,7 @@ class HBNBCommand(cmd.Cmd):
         match = re.search("\.", arg)
         if match is not None:
             input_list = [arg[:match.span()[0]], arg[match.span()[1]:]]
-            input_list[1] = re.sub('[",]+', '', input_list[1])
+            input_list[1] = re.sub('[",:{}]+', '', input_list[1])
             match = re.search("\((.*?)\)", input_list[1])
 
             if match is not None:
@@ -191,7 +191,7 @@ class HBNBCommand(cmd.Cmd):
                 check = False
                 for key, value in storage.all().items():
                     id_no = key.split(".")
-                    if id_no[1] == line[1]:
+                    if id_no[1] == line[1] and id_no[0] == line[0]:
                         check = True
                         if len(line) == 2:
                             print("** attribute name missing **")
