@@ -12,6 +12,14 @@ from models.place import Place
 from models.review import Review
 
 
+def parser(arg):
+    """Remove commas and quatation"""
+
+    for i in range(len(arg)):
+        arg[i] = arg[i].strip('\",')
+
+    return arg
+
 class HBNBCommand(cmd.Cmd):
     """Command interpreter class for AirBnB program"""
 
@@ -81,6 +89,7 @@ class HBNBCommand(cmd.Cmd):
         Prints string representation of an instance based on class name and id
         """
         line = arg.split()
+        line = parser(line)
         if len(line) == 0:
             print("** class name missing **")
         else:
@@ -134,6 +143,7 @@ class HBNBCommand(cmd.Cmd):
         (save the change into the JSON file)
         """
         line = arg.split()
+        line = parser(line)
         if len(line) == 0:
             print("** class name missing **")
         else:
@@ -148,6 +158,7 @@ class HBNBCommand(cmd.Cmd):
                     if search_key == key:
                         check = True
                         del storage.all()[key]
+                        storage.save()
                         break
                 if not check:
                     print("** no instance found **")
@@ -164,6 +175,7 @@ class HBNBCommand(cmd.Cmd):
         adding or updating attribute (save the change into the JSON file)
         """
         line = arg.split()
+        line = parser(line)
         if len(line) == 0:
             print("** class name missing **")
         else:
@@ -189,6 +201,7 @@ class HBNBCommand(cmd.Cmd):
                             else:
                                 line[3] = float(line[3])
                             setattr(value, line[2], line[3])
+                            storage.save()
                 if not check:
                     print("** no instance found **")
 
