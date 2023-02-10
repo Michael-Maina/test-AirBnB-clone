@@ -46,10 +46,8 @@ class HBNBCommand(cmd.Cmd):
 
             if match is not None:
                 cmd_list = [input_list[1][:match.span()[0]], match.group()[1:-1]]
-                print("Cmd_list: {}".format(cmd_list))
                 if cmd_list[0] in method_dict.keys():
                     arguments = input_list[0] + " " + cmd_list[1]
-                    print("Arguments: {}".format(arguments))
                     return method_dict[cmd_list[0]](arguments)
         print("*** Unknown syntax: {}".format(arg))
         return False
@@ -234,7 +232,7 @@ class HBNBCommand(cmd.Cmd):
                 print(count)
 
     def help_count(self):
-        """Help output for the update command"""
+        """Help output for the count command"""
         print("Counts the number of instances of a class")
         print()
 
