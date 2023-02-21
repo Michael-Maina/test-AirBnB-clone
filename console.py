@@ -2,6 +2,7 @@
 """Entry point for the command interpreter """
 import cmd
 import re
+import ast
 from models.__init__ import storage
 from models.base_model import BaseModel
 from models.user import User
@@ -12,12 +13,23 @@ from models.place import Place
 from models.review import Review
 
 
-def parser(arg):
-    """Remove commas and quatation"""
+def isfloat(arg):
+    """Checks if argument is a float data type variable"""
+    try:
+        float(arg)
+        return True
+    except ValueError:
+        return False
 
-    for i in range(len(arg)):
-        arg[i] = arg[i].strip('\",')
 
+def type_parser(arg):
+    """Check data type of arg and cast it"""
+    if arg.isalpha():
+        pass
+    elif arg.isdigit():
+        arg = int(arg)
+    elif isfloat(arg):
+        arg = float(arg)
     return arg
 
 class HBNBCommand(cmd.Cmd):
@@ -29,7 +41,9 @@ class HBNBCommand(cmd.Cmd):
                  "City", "Amenity", "Place", "Review"}
 
     def default(self, arg):
-        """TBD"""
+        """
+        Parses different inputs and matches them to the corresponding methods
+        """
         method_dict = {
             "all": self.do_all,
             "show": self.do_show,
@@ -38,14 +52,20 @@ class HBNBCommand(cmd.Cmd):
             "count": self.do_count
         }
 
-        match = re.search("\.", arg)
+        match = re.search(r"\.", arg)
         if match is not None:
             input_list = [arg[:match.span()[0]], arg[match.span()[1]:]]
-            input_list[1] = re.sub('[",:{}]+', '', input_list[1])
-            match = re.search("\((.*?)\)", input_list[1])
+            if re.search(r"[\{]", input_list[1]) is not None: # Searches for a dictionary in the input
+                input_list[1] = re.sub(',(?=.*\{)', '', input_list[1], 1) # Only substitutes the first comma in the input
+                input_list[1] = re.sub('["]+', '', input_list[1]) # Substitutes "
+                match = re.search(r"\((.*?)\)", input_list[1])
+            else:
+                input_list[1] = re.sub('[",]+', '', input_list[1])
+                match = re.search(r"\((.*?)\)", input_list[1])
 
             if match is not None:
-                cmd_list = [input_list[1][:match.span()[0]], match.group()[1:-1]]
+                cmd_list = [input_list[1][:match.span()[0]],
+                            match.group()[1:-1]]
                 if cmd_list[0] in method_dict.keys():
                     arguments = input_list[0] + " " + cmd_list[1]
                     return method_dict[cmd_list[0]](arguments)
@@ -178,8 +198,13 @@ class HBNBCommand(cmd.Cmd):
         Updates an instance based on the class name and id by
         adding or updating attribute (save the change into the JSON file)
         """
-        line = arg.split()
-        line = parser(line)
+        match = re.search(r"{(.*)}", arg) # Finding the dictionary in the arguments
+        if match is not None:
+            line = arg[:match.span()[0]].split() # Splitting arg upto where the dictionary starts
+            line.append(match.group()) # Adding the dictionary to the list
+            print(line) # Shows that the dictionary is part of the list of arguments
+        else:
+            line = arg.split()
         if len(line) == 0:
             print("** class name missing **")
         else:
@@ -195,15 +220,17 @@ class HBNBCommand(cmd.Cmd):
                         check = True
                         if len(line) == 2:
                             print("** attribute name missing **")
-                        elif len(line) == 3:
-                            print("** value missing **")
-                        else:
-                            if line[3].isalpha():
-                                pass
-                            elif line[3].isdigit():
-                                line[3] = int(line[3])
+                        elif len(line) == 3: # An argument list with a dictionary has a length of 3
+                            dict_inst = ast.literal_eval(line[2]) # Converting string to dictionary
+                            if isinstance(dict_inst, dict): # Checking if it is a dictionary
+                                for input_key, input_val in dict_inst.items():
+                                    input_value = type_parser(input_val)
+                                    setattr(value, input_key, input_val)
+                                    storage.save()
                             else:
-                                line[3] = float(line[3])
+                                print("** value missing **")
+                        else:
+                            line[3] = type_parser(line[3])
                             setattr(value, line[2], line[3])
                             storage.save()
                 if not check:
