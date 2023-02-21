@@ -3,6 +3,7 @@
 import cmd
 import re
 import ast
+import json
 from models.__init__ import storage
 from models.base_model import BaseModel
 from models.user import User
@@ -58,6 +59,7 @@ class HBNBCommand(cmd.Cmd):
             if re.search(r"[\{]", input_list[1]) is not None: # Searches for a dictionary in the input
                 input_list[1] = re.sub(',(?=.*\{)', '', input_list[1], 1) # Only substitutes the first comma in the input
                 input_list[1] = re.sub('["]+', '', input_list[1]) # Substitutes "
+
                 match = re.search(r"\((.*?)\)", input_list[1])
             else:
                 input_list[1] = re.sub('[",]+', '', input_list[1])
@@ -110,7 +112,7 @@ class HBNBCommand(cmd.Cmd):
         Prints string representation of an instance based on class name and id
         """
         line = arg.split()
-        line = parser(line)
+
         if len(line) == 0:
             print("** class name missing **")
         else:
@@ -167,7 +169,6 @@ class HBNBCommand(cmd.Cmd):
         (save the change into the JSON file)
         """
         line = arg.split()
-        line = parser(line)
         if len(line) == 0:
             print("** class name missing **")
         else:
@@ -202,7 +203,27 @@ class HBNBCommand(cmd.Cmd):
         if match is not None:
             line = arg[:match.span()[0]].split() # Splitting arg upto where the dictionary starts
             line.append(match.group()) # Adding the dictionary to the list
-            print(line) # Shows that the dictionary is part of the list of arguments
+            
+            #print(line) # Shows that the dictionary is part of the list of arguments
+
+            #line[2] = ast.literal_eval(str(line[2]))
+            #line[2] = json.loads(str(line[2]))       Tried all this to change str to dict but was getting an error
+            #line[2] = eval(str(line[2]))
+            
+            ag = re.sub('[}{\',]', '', line[2])
+            ag = re.sub(':', ' ', ag) #These two lines disassemble the dictionary to just arguments separated by white space
+            #print(ag)
+
+            ag = ag.split()#forms a list using those arguments
+            #print(ag)
+
+            it = iter(ag)
+            ag = dict(zip(it, it))#These two lines make the list a dictionary
+            #print(ag)
+
+            line[2] = ag#reinitializing the dictionary
+            #print(type(line[2]))
+
         else:
             line = arg.split()
         if len(line) == 0:
@@ -221,11 +242,11 @@ class HBNBCommand(cmd.Cmd):
                         if len(line) == 2:
                             print("** attribute name missing **")
                         elif len(line) == 3: # An argument list with a dictionary has a length of 3
-                            dict_inst = ast.literal_eval(line[2]) # Converting string to dictionary
+                            dict_inst = line[2] # Converting string to dictionary
                             if isinstance(dict_inst, dict): # Checking if it is a dictionary
                                 for input_key, input_val in dict_inst.items():
                                     input_value = type_parser(input_val)
-                                    setattr(value, input_key, input_val)
+                                    setattr(value, input_key, input_value)
                                     storage.save()
                             else:
                                 print("** value missing **")
